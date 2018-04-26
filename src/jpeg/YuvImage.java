@@ -9,6 +9,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import jpeg.YuvImage.Component;
+
 
 
 public class YuvImage {
@@ -42,6 +44,7 @@ public class YuvImage {
 			   	System.out.println();
 		   }
 	   }
+	 
 	   public static YuvImage rgbToYuv(Image rgbImg) { 
 		   try { 
 			   int w = rgbImg.getWidth(null); 
@@ -66,10 +69,10 @@ public class YuvImage {
 			            Cr.data[m][n] = 128 + (int) (0.5f*r - 0.4187f*g - 0.0813f*b); 	   	               
 	        	   }   
 	           }
-	           showComponent(Y);
-	           showComponent(Cr);
-	           showComponent(Cb);
-	           return new YuvImage(Y,Cr,Cb ,Sampler.YUV_444); 
+	       //    showComponent(Y);
+	       //    showComponent(Cr);
+	       //    showComponent(Cb);
+	           return new YuvImage(Y,Cb,Cr ,Sampler.YUV_444); 
 	        } 
 	        catch (Exception e) {} 
 	        return null; 
@@ -78,8 +81,7 @@ public class YuvImage {
 	  * Component is a nested class in YUV Image;
 	  * YuvImage has three Components: Y Cr cb 
 	  * So 
-	  * */
-	   
+	  * */   
 	public static class Component { 
 		   int[][] data;  // each Component's has its own 2D array;
 		   int type; 
@@ -120,7 +122,7 @@ public class YuvImage {
 		 switch (type) { 
 	         case 0:  System.out.println("Y Type"); return type; 
 	         case 1:  System.out.println("Cb Type"); return type;
-	         case 2:  System.out.println("Y Type"); return type;
+	         case 2:  System.out.println("Cr Type"); return type;
 	         default:      throw new IllegalArgumentException("Invalid Sampling Ratio "); 
 		}
 	}
@@ -142,6 +144,19 @@ public class YuvImage {
 	    catch(IOException e){
 	      System.out.println("Error: "+e);
 	    }
+	}
+	public Component getComponent(int t) {
+		Component c = null;
+		if (t == YuvImage.Y_COMP) {
+			c = Y;
+		} else if (t == YuvImage.Cb_COMP) {
+			c = Cb;
+		} else if (t == YuvImage.Cr_COMP) {
+			c = Cr;
+		} else {
+			 throw new IllegalArgumentException("Invalid Component type"); 
+		}
+		return c;
 	}
 	
 }

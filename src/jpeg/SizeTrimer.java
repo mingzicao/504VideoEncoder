@@ -57,8 +57,8 @@ public class SizeTrimer {
 	private Image newImage(Image rgbImg, int h, int w, int newH, int newW) {
 		// create new image with new dimensions 
         try { 
-        	 // System.out.print("\n old height = : " + rgbImg.getHeight(null)); 
-             // System.out.print("\n old oldheight = : " + rgbImg.getWidth(null));
+        	  System.out.print("\n old height = : " + rgbImg.getHeight(null)); 
+              System.out.print("\n old oldheight = : " + rgbImg.getWidth(null));
             BufferedImage newImg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB); 
             int[] imgData = new int[w * h]; 
             PixelGrabber grabber = new PixelGrabber(rgbImg,0,0,w,h,imgData,0,w); 
@@ -86,8 +86,8 @@ public class SizeTrimer {
                     	newImg.setRGB(w+j,h+i,imgData[imgData.length-1]); 
                     } 
                 }
-                System.out.print("\n new height = : " + newImg.getHeight()); 
-                System.out.print("\n new oldheight = : " + newImg.getWidth()); 
+                System.out.println(" new height = : " + newImg.getHeight()); 
+                System.out.println(" new oldheight = : " + newImg.getWidth()); 
                 return newImg; 
             } 
         } 
@@ -103,7 +103,7 @@ public class SizeTrimer {
 		File f = null;
 	    //read image
 	    try{
-	      f = new File("/Users/apple/Desktop/hi.png"); //image file path
+	      f = new File("/Users/apple/Desktop/hihi.png"); //image file path
 	      Image image = ImageIO.read(f);
 	      BufferedImage buffered = (BufferedImage) image;
 	      System.out.println("Reading complete.");

@@ -23,7 +23,6 @@ public class ImageEncoder {
 		
 		Image rgbImage; 
 	    YuvImage yuvImage;
-	    YuvConverter yuvConverter;
 	    Sampler sampler;
 	    Quantizer quantizer;
 	    SizeTrimer trimmer; 
@@ -43,7 +42,6 @@ public class ImageEncoder {
 		    	this.rgbImage = rgb;
 		    	this.samplingRatio = sr;
 		    	this.qualityFactor = qf;
-		    	yuvConverter = new YuvConverter(); 
 		    	trimmer =  new SizeTrimer();
 		    	sampler = new Sampler();
 		    	quantizer = new Quantizer(qf); 
@@ -57,9 +55,10 @@ public class ImageEncoder {
 	        // showImage(scaledImg); 
 	        YuvImage yuvImg = YuvImage.rgbToYuv(resizedImage); 
 	        
-	    //    yuvImg = subSampler.downSample(yuvImg,samplingRatio); 
-	     //   MinimumCodedUnitI[] minCodedUnits = blockGenerator.generateMinimumCodedUnits(yuvImg); 
-	      //  System.out.print("\nNumber of minimum coded units: " + minCodedUnits.length); 
+	        yuvImg = sampler.sampling(yuvImg, samplingRatio);
+	        ImageGrid ig = new ImageGrid();
+	        MCU[] mcuArray = ig.imageGridder(yuvImg); 
+	        System.out.print("\nNumber of minimum coded units: " + mcuArray.length); 
 	        /*
 	        for (int i=0;i < minCodedUnits.length;i++) { 
 	            // System.out.print("\nProcessing MCU: " + i); 
