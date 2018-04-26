@@ -53,12 +53,28 @@ public class ImageEncoder {
 	    protected void imageCompress(BufferedOutputStream bos) throws IOException { 
 	        Image resizedImage = trimmer.resizeImage(rgbImage, samplingRatio);
 	        // showImage(scaledImg); 
-	        YuvImage yuvImg = YuvImage.rgbToYuv(resizedImage); 
+	        YuvImage yuv = YuvImage.rgbToYuv(resizedImage); 
 	        
-	        yuvImg = sampler.sampling(yuvImg, samplingRatio);
-	        ImageGrid ig = new ImageGrid();
-	        MCU[] mcuArray = ig.imageGridder(yuvImg); 
-	        System.out.print("\nNumber of minimum coded units: " + mcuArray.length); 
+	        yuv = sampler.sampling(yuv, samplingRatio);
+	        
+	        ImageGrid imageGrid = new ImageGrid();
+		      MCU [] mcu =  imageGrid.imageGridder(yuv);  
+		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
+		  //    checkMcu(mcu);
+		      System.out.println("mcu length" + mcu.length);
+		      
+		      for (MCU m : mcu) {
+		    	 Block[] Y  = m.getYBlockArray();
+		    	 Block[] Cr = m.getCrBlockArray();
+		    	 Block[] Cb = m.getCbBlockArray();
+		    	 for (Block b: Y) {
+		    		 DCT dctBlock = DCT.FDCT(b);
+		    		 print(dctBlock.getData());
+		    	 }
+		      }
+	        
+	      
+	        
 	        /*
 	        for (int i=0;i < minCodedUnits.length;i++) { 
 	            // System.out.print("\nProcessing MCU: " + i); 
@@ -88,5 +104,24 @@ public class ImageEncoder {
 	      //  bos.write(EOI); 
 	      //  bos.flush(); 
 	    } 
+	    
+	    
+	    public static void print(int[][] b) {
+			   for(int[] i : b) {
+				   for (int j : i) {
+					   System.out.print(j + " ");
+				   }
+				   System.out.println();
+			   }
+		   }
+	    public static void print(double[][] b) {
+			   for(double[] i : b) {
+				   for (double j : i) {
+					   System.out.print(j + " ");
+				   }
+				   System.out.println();
+			   }
+		   }
+		      
 
 }

@@ -12,9 +12,9 @@ package jpeg;
 public class MCU {
 	public int SamplingRatio;
 	//Block[][] BlockGroup;
-	Block[] YBlockArray;  // 根据不同sampling Ratio, Y：Cr: Cb的取样不同；BlockArray 的长度不同；
-	Block[] CrBlockArray;
-	Block[] CbBlockArray;
+	private Block[] YBlockArray;  // 根据不同sampling Ratio, Y：Cr: Cb的取样不同；BlockArray 的长度不同；
+	private Block[] CrBlockArray;
+	private Block[] CbBlockArray;
 	 public MCU(Block[] YBlockArray, Block[] CbBlockArray, Block[] CrBlockArray) { 
 	        if (YBlockArray != null && CrBlockArray != null &&  CbBlockArray != null) { 
 	        	this.YBlockArray = YBlockArray;
@@ -23,13 +23,21 @@ public class MCU {
 	        }
 	        else 
 	            throw new IllegalArgumentException("MCU cannot contain null"); 
-	    } 
-	 
-	    
-	    public int getNumberOfBlocks() { 
+	 } 
+	 	    
+	 public Block[] getYBlockArray(){
+		 return YBlockArray; 
+	 }
+	 public Block[] getCbBlockArray(){
+		 return CbBlockArray; 
+	 }
+	 public Block[] getCrBlockArray(){
+		 return CrBlockArray; 
+	 }
+	 public int getNumberOfBlocks() { 
 	       
 	        return YBlockArray.length + CbBlockArray.length + CrBlockArray.length; 
-	    }
+	 }
 	
 	
 	

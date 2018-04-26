@@ -27,14 +27,7 @@ public class ImageGrid {
 		       int[][] YData = Y.getData(); 
 		       int[][] CbData = Cb.getData(); 
 		       int[][] CrData = Cr.getData(); 
-		     /*
-		       System.out.println("_______________________Y ____________________________________________________");
-		       print(YData);
-		       System.out.println("_______________________CB____________________________________________________");
-		       print(CbData);
-		       System.out.println("_______________________CR____________________________________________________");
-		       print(CrData);
-		     */
+		    
 		       List<MCU> list = new ArrayList<>();
 		       for (int i = 0; i < h; i += Block.SIZE) { 
 		           for (int j = 0;j < w;  j += Block.SIZE) { 
@@ -71,11 +64,11 @@ public class ImageGrid {
 		       int[][] CbData = Cb.getData(); 
 		       int[][] CrData = Cr.getData(); 	
 		       //print(YData);
-			       print(CbData);
-			       System.out.println();
-			       System.out.println();
-			       print(CrData);
-		       System.out.println("Cb Cr sampled Block is  : " + CbData.length + " *  "+ CbData[0].length);
+			 //      print(CbData);
+			 //      System.out.println();
+			 //      System.out.println();
+			  //     print(CrData);
+		  //   System.out.println("Cb Cr sampled Block is  : " + CbData.length + " *  "+ CbData[0].length);
 		       List<MCU> list = new ArrayList<>();
 		       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
 		           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
@@ -243,7 +236,7 @@ public class ImageGrid {
 		      MCU [] mcu =  ig.imageGridder(yuv);
 		     
 		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
-		      checkMcu(mcu);
+		  //    checkMcu(mcu);
 		      System.out.println("mcu length" + mcu.length);
 		    }
 		    catch(IOException e){

@@ -7,6 +7,8 @@ public class Quantizer {
 	private int qualityFactor = Quantizer.DefalutQualityFactor;
 	
 	public Quantizer(int qualityFactor) { 
-	 this.qualityFactor = qualityFactor; 
+		this.qualityFactor = qualityFactor; 
 	} 
+	
+	
 }
