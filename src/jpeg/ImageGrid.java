@@ -64,12 +64,18 @@ public class ImageGrid {
 		       return mcuArray;
 	       } else if (yuvImg.samplingRatio ==  Sampler.YUV_422 && Y.getSize().width % 16 == 0 && Y.getSize().height % 16 == 0) {
 	  
-	    	  /*******************************              YUV 4:2:2                  ******************************/  	 
+	 	  /*******************************              YUV 4:2:2                  ******************************/  	 
 	    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
 		       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
 		       int[][] YData = Y.getData(); 
 		       int[][] CbData = Cb.getData(); 
-		       int[][] CrData = Cr.getData(); 		       
+		       int[][] CrData = Cr.getData(); 	
+		       //print(YData);
+			       print(CbData);
+			       System.out.println();
+			       System.out.println();
+			       print(CrData);
+		       System.out.println("Cb Cr sampled Block is  : " + CbData.length + " *  "+ CbData[0].length);
 		       List<MCU> list = new ArrayList<>();
 		       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
 		           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
@@ -79,14 +85,21 @@ public class ImageGrid {
 		               int index = 0; 
 		        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
 		                   for (int y = 0; y < 2;  y++) {
+		                	   int M = i + x*Block.SIZE;
+		                	   int N = j+  y*Block.SIZE;
+		                	   System.out.println("INDEX OF TOP LEFT OF Y block : " + M + "   "+ N);
 		                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
-		                	   int[][] blockData =  getBlockData(YData, j+y*Block.SIZE, i+x*Block.SIZE);	   
+		                	   int[][] blockData =  getBlockData(YData, M, N);	   
 		                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
 		                       if (y == 0) {  
 		                    	   // get also Cb and Cr blocks 
-		                    	   blockData =  getBlockData(CbData, j/2+y*Block.SIZE, i+x*Block.SIZE);                    	   
+		                    	    
+			                	    M = i+ x*Block.SIZE;
+			                	    N = j/2;
+			                	   System.out.println("INDEX OF TOP LEFT OF Cr Cb block : " + M + "   "+ N);
+		                    	   blockData =  getBlockData(CbData, M, N);                    	   
 		                    	   CbBlocks[index/2] = new Block(blockData, YuvImage.Cb_COMP);           
-		                    	   blockData =  getBlockData(CrData, j/2+y*Block.SIZE, i+x*Block.SIZE);
+		                    	   blockData =  getBlockData(CrData, M, N);
 		                    	   CrBlocks[index/2] = new Block(blockData, YuvImage.Cr_COMP); 
 		                       } 
 		                       index++; 
@@ -107,6 +120,9 @@ public class ImageGrid {
 		       int[][] YData = Y.getData(); 
 		       int[][] CbData = Cb.getData(); 
 		       int[][] CrData = Cr.getData(); 		       
+		   //    print(YData);
+		   //    print(CbData);
+		   //    print(CrData);
 		       List<MCU> list = new ArrayList<>();
 		       
 		       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
@@ -118,13 +134,19 @@ public class ImageGrid {
 		        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
 		                   for (int y = 0; y < 2;  y++) {
 		                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
-		                	   int[][] blockData =  getBlockData(YData, j+y*Block.SIZE, i+x*Block.SIZE);	   
+		                	   int M = i + x*Block.SIZE;
+		                	   int N = j+  y*Block.SIZE;
+		                	   int[][] blockData =  getBlockData(YData,M, N);	   
+		                	//   System.out.println("INDEX OF TOP LEFT OF y block : " + M + "   "+ N);
 		                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
 		                       if (y == 0 && x == 0) {  
 		                    	   // get also Cb and Cr blocks 
-		                    	   blockData =  getBlockData(CbData, j/2 + y*Block.SIZE, i/2 + x*Block.SIZE);                    	   
+		                    	   M = i/2;
+		                    	   N = j/2;
+		                    	  // System.out.println("INDEX OF TOP LEFT of Cr cb: " +  M + "   "+ N);
+		                    	   blockData =  getBlockData(CbData, M, N);                    	   
 		                    	   CbBlocks[index] = new Block(blockData, YuvImage.Cb_COMP);           
-		                    	   blockData =  getBlockData(CrData, j/2+y*Block.SIZE, i/2+x*Block.SIZE);
+		                    	   blockData =  getBlockData(CrData, M, N);
 		                    	   CrBlocks[index] = new Block(blockData, YuvImage.Cr_COMP); 
 		                       } 
 		                       index++; 
@@ -204,24 +226,24 @@ public class ImageGrid {
 		      f = new File("/Users/apple/Desktop/hihi.png"); //image file path
 		      Image image = ImageIO.read(f);
 		      BufferedImage buffered = (BufferedImage) image;
-		      System.out.println("Reading complete.");
+		    //  System.out.println("Reading complete.");
 		      System.out.println("old IMAGE H" + image.getHeight(null));
 		      System.out.println("old IMAGE W" + image.getWidth(null));
 		      SizeTrimer st = new SizeTrimer();
-		      image = st.resizeImage(image, 1);
+		      
+		      int SamplingRatio = 0;
+		      
+		      image = st.resizeImage(image, SamplingRatio);
 		      System.out.println("new IMAGE H" + image.getHeight(null));
 		      System.out.println("new IMAGE W" + image.getWidth(null));
 		      YuvImage yuv = YuvImage.rgbToYuv(image);
 		      Sampler sp = new Sampler();
-		      yuv = sp.sampling(yuv, 2);
-		    //  YuvImage.showComponent(yuv.Y);
-		    //  YuvImage.showComponent(yuv.Cb);
-		    //  YuvImage.showComponent(yuv.Cr);
+		      yuv = sp.sampling(yuv, SamplingRatio);	
 		      ImageGrid ig = new ImageGrid();
 		      MCU [] mcu =  ig.imageGridder(yuv);
+		     
 		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
 		      checkMcu(mcu);
-		      
 		      System.out.println("mcu length" + mcu.length);
 		    }
 		    catch(IOException e){
