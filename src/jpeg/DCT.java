@@ -93,29 +93,20 @@ public class DCT {
 		      ImageGrid imageGrid = new ImageGrid();
 		      MCU [] mcu =  imageGrid.imageGridder(yuv);  
 		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
-		  //    checkMcu(mcu);
-		      System.out.println("mcu length" + mcu.length);
-		      
-		      int i = 0;
-		      for (MCU m : mcu) {
-		    	 System.out.println("MCU #_____________________________" + i++);
+		  //    checkMcu(mcu);		   
+		      for (MCU m : mcu) {		    
 		    	 Block[] Y  = m.getYBlockArray();
 		    	 Block[] Cr = m.getCrBlockArray();
 		    	 Block[] Cb = m.getCbBlockArray();
-		    	 System.out.println("yyyy dct  ____________________________________________" );
+		    	
 		    	 for (Block b: Y) {
-		    		 DCT dctBlock = DCT.FDCT(b);
-		    		 print(dctBlock.getData());
-		    	 }
-		      	 System.out.println("cr dct  ____________________________________________" );
+		    		 DCT dctYBlock = DCT.FDCT(b);
+		    	 }		      	
 		    	 for (Block b: Cr) {
-		    		 DCT dctBlock = DCT.FDCT(b);
-		    		 print(dctBlock.getData());
+		    		 DCT dctCbBlock = DCT.FDCT(b);
 		    	 }
-		      	 System.out.println("cb dct  ____________________________________________" );
 		    	 for (Block b: Cb) {
-		    		 DCT dctBlock = DCT.FDCT(b);
-		    		 print(dctBlock.getData());
+		    		 DCT dctCrBlock = DCT.FDCT(b);
 		    	 }
 		      }
 		    }
@@ -123,4 +114,6 @@ public class DCT {
 		      System.out.println("Error: "+e);
 		    }
 		}
+	   
+	  
 }

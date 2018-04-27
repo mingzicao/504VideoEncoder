@@ -172,14 +172,14 @@ public class ImageGrid {
 	   public static void checkMcu(MCU[] mcu) {
 		   for (MCU m: mcu) {
 		    	  System.out.println("Y block array");
-		    	  Block[] y =  m.YBlockArray;
+		    	  Block[] y =  m.getYBlockArray();
 		    	  int i = 0;
 		    	  for (Block b: y) {
 		    	 		System.out.println("block  : " + i++);
 		    	 		int[][] block = b.getData();
 		    	 		print(block);
 		    	  }
-		    	  Block[] cb = m.CbBlockArray;
+		    	  Block[] cb = m.getCbBlockArray();
 		    	  System.out.println("Cb block array");
 		    	  
 		    	  i = 0;
@@ -189,7 +189,7 @@ public class ImageGrid {
 		    	 		print(block);
 		    	  }
 		    	  
-		    	 Block[] cr = m.CrBlockArray;
+		    	 Block[] cr = m.getCrBlockArray();
 		    	  System.out.println("Cr block array");
 		    	  
 		    	  i = 0;
