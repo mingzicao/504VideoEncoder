@@ -110,6 +110,9 @@ public class SizeTrimer {
 	      Image m = st.resizeImage(image, 1);
 	      BufferedImage buffered = (BufferedImage) m;
 	      ImageIO.write(buffered, "jpg", new File("myImage.jpg"));
+	      int a = 2;
+	      byte b = (byte)a;
+	      System.out.println(b);
 	    }
 	    catch(IOException e){
 	      System.out.println("Error: "+e);

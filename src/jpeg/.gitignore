@@ -1,0 +1,13 @@
+/Block.class
+/DCT.class
+/HuffmanEncoder.class
+/ImageEncoder.class
+/ImageGrid.class
+/MCU.class
+/Quantizer.class
+/RunLenthEncoder.class
+/Sampler.class
+/SizeTrimer.class
+/YuvImage$Component.class
+/YuvImage.class
+/testMain.class
