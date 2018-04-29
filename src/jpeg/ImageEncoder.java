@@ -4,7 +4,7 @@ import java.awt.Image;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
-
+import jpeg.RunLengthEncoder.Cell;
 
 /*	
  * 	input: Image Object
@@ -16,8 +16,7 @@ import java.io.IOException;
  *  each Block - [DCT Transfer] - [Quantizer] -  dctBlock;
  *  dctBlock - [ AC DC encoder] - [VLIencoder + Huffman encoder] -jpg.file;
  *  output: an jpgFile; put in the outputStream;
- * 
- * 
+ 
  * */
 public class ImageEncoder {
 		
@@ -27,12 +26,15 @@ public class ImageEncoder {
 	    Quantizer quantizer;
 	    SizeTrimer trimmer; 
 	    MCU[] allMCU;
+	    HuffmanEncoder hf;
 	    //  EntropyCoderI entropyCoder; 	    
 	    int samplingRatio; 
 	    int qualityFactor;
 	    
 	    private static final int DefaultSampleRatio = Sampler.YUV_444; 
 	    private static final int DefaultQualityFactor = 100;
+	  
+	    
 	    
 	    public ImageEncoder(Image rgbImg) { 
 	        this(rgbImg, DefaultSampleRatio, DefaultQualityFactor); 
@@ -45,57 +47,70 @@ public class ImageEncoder {
 		    	trimmer =  new SizeTrimer();
 		    	sampler = new Sampler();
 		    	quantizer = new Quantizer(qf); 
+		    	//hf = new HuffmanEncoder();
 		         
 	    	} else {
 	    		 throw new IllegalArgumentException("Invalid subsampling Ratio, please input 0/ 1/ 2"); 
 	    	}
 	    }
+	    
+	    
+	    
+	    
 	    protected void imageCompress(BufferedOutputStream bos) throws IOException { 
-	        Image resizedImage = trimmer.resizeImage(rgbImage, samplingRatio);
+	        HuffmanEncoder hf = new HuffmanEncoder(bos); 
+	    	Image resizedImage = trimmer.resizeImage(rgbImage, samplingRatio);
 	        // showImage(scaledImg); 
-	        YuvImage yuv = YuvImage.rgbToYuv(resizedImage); 
-	        
+	        YuvImage yuv = YuvImage.rgbToYuv(resizedImage); 	        
 	        yuv = sampler.sampling(yuv, samplingRatio);
-	        
 	        ImageGrid imageGrid = new ImageGrid();
-		      MCU [] mcu =  imageGrid.imageGridder(yuv);  
-		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
-		  //    checkMcu(mcu);
-		      System.out.println("mcu length" + mcu.length);
-		      
-		      for (MCU m : mcu) {
-		    	 Block[] Y  = m.getYBlockArray();
-		    	 Block[] Cr = m.getCrBlockArray();
-		    	 Block[] Cb = m.getCbBlockArray();
-		    	 for (Block b: Y) {
-		    		 DCT dctBlock = DCT.FDCT(b);
-		    		 print(dctBlock.getData());
-		    	 }
+	      //  System.out.println(" ----------------------    check MCU ARRAY - --------------------------");	 
+	        MCU [] mcu =  imageGrid.imageGridder(yuv);  
+		   
+		   // System.out.println(" ----------------------    check MCU ARRAY - --------------------------");	  
+	        System.out.println(" ----------------------   hhhhhhh- --------------------------");	 
+		    System.out.println("mcu length" + mcu.length);
+		   
+		    int QualityFactor = 80;
+		    Quantizer q = new Quantizer(QualityFactor);  
+		      Block prev = null;
+		      for (MCU m : mcu) {		    	  	 
+			    	 Block[] Y  = m.getYBlockArray();
+			    	 Block[] Cr = m.getCrBlockArray();
+			    	 Block[] Cb = m.getCbBlockArray();
+			    	 
+			    	 for (int i = 0; i < Y.length; i++) {
+			    		 DCT dctYBlock = DCT.FDCT(Y[i]);
+			    		 Block cur = q.quantizeDCTBlock(dctYBlock, YuvImage.Y_COMP);
+			    		 hf.setCurBlock(cur);
+			    		 hf.huffmanEncoding(YuvImage.Y_COMP);
+			    		 prev = cur;
+			    		 hf.setPrevBlock(prev, YuvImage.Y_COMP);
+			    	 }
+			    	 
+			    	 for (int i = 0; i < Cb.length; i++) {
+			    		 DCT dctCbBlock = DCT.FDCT(Cb[i]);
+			    		 Block cur = q.quantizeDCTBlock(dctCbBlock, YuvImage.Cb_COMP);
+			    		 hf.setCurBlock(cur);
+			    		 hf.huffmanEncoding(YuvImage.Cb_COMP);
+			    		 prev = cur;
+			    		 hf.setPrevBlock(prev, YuvImage.Cb_COMP);
+			    	 }
+			    			    	 
+			    	 for (int i = 0; i < Cr.length; i++) {
+			    		 DCT dctCrBlock = DCT.FDCT(Cr[i]);
+			    		 Block cur = q.quantizeDCTBlock(dctCrBlock, YuvImage.Cr_COMP);
+			    		 hf.setCurBlock(cur);
+			    		 hf.huffmanEncoding(YuvImage.Cr_COMP);
+			    		 prev = cur;
+			    		 hf.setPrevBlock(prev,YuvImage.Cr_COMP);
+			    	 }		    	
+			    	     	 			    	 
 		      }
 	        
-	      
-	        
-	        /*
-	        for (int i=0;i < minCodedUnits.length;i++) { 
-	            // System.out.print("\nProcessing MCU: " + i); 
-	            RegionI[] regions = minCodedUnits[i].getRegions(); 
-	            for (int j = 0;j < regions.length;j++) { 
-	                // System.out.print("\n  Region: " + getRegionType(regions[j])); 
-	                BlockI[] blocks = regions[j].getBlocks(); 
-	                for (int k=0;k < blocks.length;k++) { 
-	                    // System.out.print("\n    Block " + k + ": --------------"); 
-	                    // showBlock(blocks[k],"Component block (" + regions[j].getType() + "):"); 
-	                    DCTBlockI dctBlock = dct.forward(blocks[k]); 
-	                    // showDCTBlock(dctBlock); 
-	                    BlockI quantBlock = quantizer.quantizeBlock(dctBlock,regions[j].getType()); 
-	                    // showBlock(quantBlock,"Quantized block:"); 
-	                    entropyCoder.huffmanEncode(quantBlock,regions[j].getType(),bos); 
-	                } 
-	            } 
-	        } 
-	    //    entropyCoder.flushBuffer(bos); */
-	    
 	    } 
+	   
+	    
 	    
 	    public void compressToOutStream(BufferedOutputStream bos) throws IOException { 
 	      //  bos.write(SOI); 
@@ -104,7 +119,6 @@ public class ImageEncoder {
 	      //  bos.write(EOI); 
 	      //  bos.flush(); 
 	    } 
-	    
 	    
 	    public static void print(int[][] b) {
 			   for(int[] i : b) {
@@ -125,3 +139,6 @@ public class ImageEncoder {
 		      
 
 }
+
+
+

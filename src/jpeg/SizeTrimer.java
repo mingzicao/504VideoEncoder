@@ -106,9 +106,14 @@ public class SizeTrimer {
 	      f = new File("/Users/apple/Desktop/hihi.png"); //image file path
 	      Image image = ImageIO.read(f);
 	      BufferedImage buffered = (BufferedImage) image;
+	      ImageIO.write(buffered, "jpg", new File("myImage.jpg"));
+	      
 	      System.out.println("Reading complete.");
 	      SizeTrimer st = new SizeTrimer();
-	      st.resizeImage(image, 1);
+	      Image m = st.resizeImage(image, 1);
+	     // BufferedImage buffered = (BufferedImage) m;
+	     // ImageIO.write(buffered, "jpg", new File("myImage.jpg"));
+	      
 	    }
 	    catch(IOException e){
 	      System.out.println("Error: "+e);
