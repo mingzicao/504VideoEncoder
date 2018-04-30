@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import jpeg.RunLengthEncoder.Cell;
+
 
 public class Quantizer {
 	 
@@ -89,6 +91,47 @@ public class Quantizer {
 		}   
 		return new Block(QBlock, component); 
 	}
+	
+	
+	public DCT DeQuantize(Block qb, int component) {  // QUANTIZED block back to DCT block;
+		double[][] d = new double[Block.SIZE][Block.SIZE];
+		int[][] qdata = qb.getData();
+		int[] Q = null;
+		if (component == YuvImage.Y_COMP) {
+			Q = getQuantizeY();
+		} else {
+			Q = getQuantizeC();	
+		}
+		for (int i = 0; i < Block.SIZE; i++) { 
+			  for (int j = 0; j < Block.SIZE; j++) { 
+				   int index = i * Block.SIZE + j; 
+				   d[i][j] = qdata[i][j] * Q[index]; 
+			  } 
+		} 
+		
+		 return new DCT(d, qb.type);
+		
+//		int[] Q = null;
+//		if (component == YuvImage.Y_COMP) {
+//			Q = getQuantizeY();
+//		} else {
+//			Q = getQuantizeC();	
+//		}
+//		double[][] dctData = dct.getData(); 
+//		
+//		int[][] QBlock = new int[Block.SIZE][Block.SIZE]; 
+//		  
+//		for (int i = 0; i < Block.SIZE; i++) { 
+//			  for (int j = 0; j < Block.SIZE; j++) { 
+//				   int index = i * Block.SIZE + j; 
+//				   QBlock[i][j] = (int) (dctData[i][j] / Q[index]); 
+//			  } 
+//		}   
+//		return new Block(QBlock, component); 
+	}
+	
+	
+	
 	  public static void main(String[] args) {
 			
 			File f = null;
@@ -102,7 +145,7 @@ public class Quantizer {
 		      System.out.println("old IMAGE W" + image.getWidth(null));
 		      SizeTrimer st = new SizeTrimer();
 		      
-		      int SamplingRatio = 0;
+		      int SamplingRatio = 1;
 		      
 		      image = st.resizeImage(image, SamplingRatio);
 		      System.out.println("new IMAGE H" + image.getHeight(null));
@@ -115,30 +158,111 @@ public class Quantizer {
 		      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
 		  //    checkMcu(mcu);	
 		      Quantizer q = new Quantizer(80);
-		      
+		      RunLengthEncoder rle  = new RunLengthEncoder();
 		      for (MCU m : mcu) {		    
 		    	 Block[] Y  = m.getYBlockArray();
 		    	 Block[] Cr = m.getCrBlockArray();
 		    	 Block[] Cb = m.getCbBlockArray();
-		    	
+		    	 System.out.println(" ---------------YYYYYYY----------------------------");
 		    	 for (Block b: Y) {
-		    		 DCT dctYBlock = DCT.FDCT(b);
-		    		 Block block = q.quantizeDCTBlock(dctYBlock, 0);
-		    		 System.out.println(" ---------------YYYYYYY----------------------------");
+		    		 int type = 0;
+		    		 System.out.println(" _________orinial _______");
+		    		 print(b.getData());
+		    		 
+		    		 DCT d = DCT.FDCT(b);
+		    		 System.out.println(" _________  after DCT  _______");	
+		    		 print(d.getData());
+		    		 
+		    		 Block block = q.quantizeDCTBlock(d, type);
+		    		 System.out.println(" _________  after Quantized _________");	
 		    		 print(block.getData());
-		    		  
-		    	 }	
-		    	 for (Block b: Cb) {
-		    		 DCT dctCbBlock = DCT.FDCT(b);
-		    		 Block block = q.quantizeDCTBlock(dctCbBlock, 1);
-		    		 System.out.println(" ----------------------CB---------------------");
-		    		 print(block.getData());
+		    		 
+		    		 
+		    		 Cell[] cell = rle.RLEncoding(block.getZigZag(block));
+		    		
+		    		 int DC = block.getData()[0][0];
+		    		 DCACWrapper daw  = new DCACWrapper(DC, cell, type);
+		    		 DCACWrapper.print(daw);
+		    		 System.out.println(" _________ de Zig Zag _________");	
+		    		 Block unDA = daw.deWrap(daw);
+		    		 print(unDA.getData());
+		    		 
+		    		 DCT D = q.DeQuantize(block, type);
+		    		 System.out.println(" _________  do De Quantized _________");	
+		    		 print(D.getData());
+		    		
+		    		 
+		    		 System.out.println(" _________  do IDCT _________");	
+		    		 Block newb =  DCT.IDCT(D);
+		    		 print(newb.getData());
 		    	 }
-		    	 for (Block b: Cr) {
-		    		 DCT dctCrBlock = DCT.FDCT(b);
-		    		 Block block = q.quantizeDCTBlock(dctCrBlock, 2);
-		    		 System.out.println(" -----------------------CR--------------------");
+		    	 
+		    	 
+		    	 System.out.println(" ----------------------CB---------------------");
+		    	 for (Block b: Cb) {
+		    		 int type = 1;
+		    		 System.out.println(" _________orinial _______");
+		    		 print(b.getData());
+		    		 
+		    		 DCT d = DCT.FDCT(b);
+		    		 System.out.println(" _________  after DCT  _______");	
+		    		 print(d.getData());
+		    		 
+		    		 Block block = q.quantizeDCTBlock(d, type);
+		    		 System.out.println(" _________  after Quantized _________");	
 		    		 print(block.getData());
+		    		 
+		    		 Cell[] cell = rle.RLEncoding(block.getZigZag(block));
+		    		 int DC = block.getData()[0][0];
+		    		 DCACWrapper daw  = new DCACWrapper(DC, cell, type);	    		
+		    		 DCACWrapper.print(daw);
+		    		 System.out.println(" _________ de Zig Zag _________");	
+		    		 Block unDA = daw.deWrap(daw);
+		    		 print(unDA.getData());
+		    		 
+		    		 
+		    		 DCT D = q.DeQuantize(block, type);
+		    		 System.out.println(" _________  do De Quantized _________");	
+		    		 print(D.getData());
+		    		
+		    		 
+		    		 System.out.println(" _________  do IDCT _________");	
+		    		 Block newb =  DCT.IDCT(D);
+		    		 print(newb.getData());
+		    	 }
+		    	 System.out.println(" -----------------------CR--------------------");
+		    	 
+		    	 for (Block b: Cr) {
+		    		 int type = 2;
+		    		 System.out.println(" _________orinial _______");
+		    		 print(b.getData());
+		    		 
+		    		 DCT d = DCT.FDCT(b);
+		    		 System.out.println(" _________  after DCT  _______");	
+		    		 print(d.getData());
+		    		 
+		    		 Block block = q.quantizeDCTBlock(d,  type);
+		    		 System.out.println(" _________  after Quantized _________");	
+		    		 print(block.getData());
+		    		
+		    		
+		    		 Cell[] cell = rle.RLEncoding(block.getZigZag(block));
+		    		 int DC = block.getData()[0][0];
+		    		 DCACWrapper daw  = new DCACWrapper(DC, cell, type);	    		
+		    		 DCACWrapper.print(daw);
+		    		 System.out.println(" _________ de Zig Zag _________");	
+		    		 Block unDA = daw.deWrap(daw);
+		    		 print(unDA.getData());
+		    		 
+		    		 
+		    		 DCT D = q.DeQuantize(block,  type);
+		    		 System.out.println(" _________  do De Quantized _________");	
+		    		 print(D.getData());
+		    		
+		    		 
+		    		 System.out.println(" _________  do IDCT _________");	
+		    		 Block newb =  DCT.IDCT(D);
+		    		 print(newb.getData());
 		    	 }
 		    	 
 		      }
@@ -147,8 +271,16 @@ public class Quantizer {
 		      System.out.println("Error: "+e);
 		    }
 		}
-			
 	  
+	  public static void print(double[][] b) {
+		   for(double[] i : b) {
+			   for (double j : i) {
+				   System.out.print(j + " ");
+			   }
+			   System.out.println();
+		   }
+	   }
+	      
 	    public static void print(int[][] b) {
 			   for(int[] i : b) {
 				   for (int j : i) {

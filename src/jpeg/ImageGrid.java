@@ -16,150 +16,155 @@ import jpeg.YuvImage.Component;
 public class ImageGrid {
 	 public MCU[] imageGridder(YuvImage yuvImg) { 	 
 		  
-		 	Component Y = yuvImg.getComponent(YuvImage.Y_COMP);
-		 			
+		   Component Y = yuvImg.getComponent(YuvImage.Y_COMP);		 			
 	       int h = Y.getSize().height;
-	       int w = Y.getSize().width;     
-	     /*********************YUV 4: 4 :4 **************************/
+	       int w = Y.getSize().width;    
+	       List<MCU> list;
 	       if (yuvImg.samplingRatio ==  Sampler.YUV_444 && w % 8 == 0 && h % 8 == 0) {
-	    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
-		       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
-		       int[][] YData = Y.getData(); 
-		       int[][] CbData = Cb.getData(); 
-		       int[][] CrData = Cr.getData(); 
-		    
-		       List<MCU> list = new ArrayList<>();
-		       for (int i = 0; i < h; i += Block.SIZE) { 
-		           for (int j = 0;j < w;  j += Block.SIZE) { 
-		               Block[] YBlocks = new Block[1]; 
-		               Block[] CbBlocks = new Block[1]; 
-		               Block[] CrBlocks = new Block[1]; 
-		             
-		               
-		               int[][] blockData =  getBlockData(YData,i,j);
-		               Block block = new Block(blockData, YuvImage.Y_COMP);
-		               YBlocks[0] = block; 
-		               
-		               blockData = getBlockData(CbData,i,j);
-		               block = new Block(blockData, YuvImage.Cb_COMP);
-		               CbBlocks[0] = block; 
-		               
-		               blockData = getBlockData(CrData,i,j);
-		               block = new Block(blockData, YuvImage.Cr_COMP);
-		               CrBlocks[0] = block; 
-		               
-		               MCU mcu = new MCU (YBlocks, CbBlocks, CrBlocks);
-		               list.add(mcu); 
-		           } 
-		       } 
-		       MCU[] mcuArray = new MCU[list.size()]; 
-		       mcuArray = list.toArray(mcuArray); 
-		       return mcuArray;
+		    	list = sample444(yuvImg);
+			    MCU[] mcuArray = new MCU[list.size()]; 
+			    mcuArray = list.toArray(mcuArray); 
+			    return mcuArray;
 	       } else if (yuvImg.samplingRatio ==  Sampler.YUV_422 && Y.getSize().width % 16 == 0 && Y.getSize().height % 16 == 0) {
-	  
-	 	  /*******************************              YUV 4:2:2                  ******************************/  	 
-	    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
-		       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
-		       int[][] YData = Y.getData(); 
-		       int[][] CbData = Cb.getData(); 
-		       int[][] CrData = Cr.getData(); 	
-		       //print(YData);
-			 //      print(CbData);
-			 //      System.out.println();
-			 //      System.out.println();
-			  //     print(CrData);
-		  //   System.out.println("Cb Cr sampled Block is  : " + CbData.length + " *  "+ CbData[0].length);
-		       List<MCU> list = new ArrayList<>();
-		       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
-		           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
-		        	   Block[] YBlocks = new Block[4]; 
-		               Block[] CbBlocks = new Block[2]; 
-		               Block[] CrBlocks = new Block[2]; 
-		               int index = 0; 
-		        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
-		                   for (int y = 0; y < 2;  y++) {
-		                	   int M = i + x*Block.SIZE;
-		                	   int N = j+  y*Block.SIZE;
-		                	   System.out.println("INDEX OF TOP LEFT OF Y block : " + M + "   "+ N);
-		                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
-		                	   int[][] blockData =  getBlockData(YData, M, N);	   
-		                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
-		                       if (y == 0) {  
-		                    	   // get also Cb and Cr blocks 
-		                    	    
-			                	    M = i+ x*Block.SIZE;
-			                	    N = j/2;
-			                	   System.out.println("INDEX OF TOP LEFT OF Cr Cb block : " + M + "   "+ N);
-		                    	   blockData =  getBlockData(CbData, M, N);                    	   
-		                    	   CbBlocks[index/2] = new Block(blockData, YuvImage.Cb_COMP);           
-		                    	   blockData =  getBlockData(CrData, M, N);
-		                    	   CrBlocks[index/2] = new Block(blockData, YuvImage.Cr_COMP); 
-		                       } 
-		                       index++; 
-		                   } 
-		               } 
-		               MCU mcu = new MCU(YBlocks, CbBlocks, CrBlocks);
-		               list.add(mcu); 
-		           } 
-		       } 
+	    	   list = sample422(yuvImg);       
 		       MCU[] mcuArray = new MCU[list.size()]; 
 		       mcuArray = list.toArray(mcuArray); 
 		       return mcuArray;	    	   
 	       } else  if (yuvImg.samplingRatio ==  Sampler.YUV_420 && w % 16 == 0 && h % 16 == 0) {
-	    	   
-	   /*******************************  			YUV 4:2:0  		************************************/  	 
-	    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
-		       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
-		       int[][] YData = Y.getData(); 
-		       int[][] CbData = Cb.getData(); 
-		       int[][] CrData = Cr.getData(); 		       
-		   //    print(YData);
-		   //    print(CbData);
-		   //    print(CrData);
-		       List<MCU> list = new ArrayList<>();
-		       
-		       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
-		           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
-		        	   Block[] YBlocks = new Block[4]; 
-		               Block[] CbBlocks = new Block[1]; 
-		               Block[] CrBlocks = new Block[1]; 
-		               int index = 0; 
-		        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
-		                   for (int y = 0; y < 2;  y++) {
-		                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
-		                	   int M = i + x*Block.SIZE;
-		                	   int N = j+  y*Block.SIZE;
-		                	   int[][] blockData =  getBlockData(YData,M, N);	   
-		                	//   System.out.println("INDEX OF TOP LEFT OF y block : " + M + "   "+ N);
-		                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
-		                       if (y == 0 && x == 0) {  
-		                    	   // get also Cb and Cr blocks 
-		                    	   M = i/2;
-		                    	   N = j/2;
-		                    	  // System.out.println("INDEX OF TOP LEFT of Cr cb: " +  M + "   "+ N);
-		                    	   blockData =  getBlockData(CbData, M, N);                    	   
-		                    	   CbBlocks[index] = new Block(blockData, YuvImage.Cb_COMP);           
-		                    	   blockData =  getBlockData(CrData, M, N);
-		                    	   CrBlocks[index] = new Block(blockData, YuvImage.Cr_COMP); 
-		                       } 
-		                       index++; 
-		                   } 
-		               }        	   
-		               MCU mcu = new MCU(YBlocks, CbBlocks, CrBlocks);
-		               list.add(mcu); 
-		           } 
-		       } 
+	    	   list = sample422(yuvImg);
 		       MCU[] mcuArray = new MCU[list.size()]; 
 		       mcuArray = list.toArray(mcuArray); 
 		       return mcuArray;	
-	    	
 	       } else {	    	   
 	    	   throw new IllegalArgumentException("Invalid Sampling Ratio Or Invalid Dimension");
-	    	   
 	       }      
 	   } 
 
-	   private int[][] getBlockData(int[][] compData, int X, int Y) { 
+	   private List<MCU> sample422(YuvImage yuvImg) {
+		   Component Y = yuvImg.Y;
+    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
+	       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
+	       int[][] YData = Y.getData(); 
+	       int[][] CbData = Cb.getData(); 
+	       int[][] CrData = Cr.getData(); 	
+	       List<MCU> list = new ArrayList<>();
+	       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
+	           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
+	        	   Block[] YBlocks = new Block[4]; 
+	               Block[] CbBlocks = new Block[2]; 
+	               Block[] CrBlocks = new Block[2]; 
+	               int index = 0; 
+	        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
+	                   for (int y = 0; y < 2;  y++) {
+	                	   int M = i + x*Block.SIZE;
+	                	   int N = j+  y*Block.SIZE;
+	                	   System.out.println("INDEX OF TOP LEFT OF Y block : " + M + "   "+ N);
+	                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
+	                	   int[][] blockData =  getBlockData(YData, M, N);	   
+	                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
+	                       if (y == 0) {  
+		                	    M = i+ x*Block.SIZE;
+		                	    N = j/2;
+		                	   System.out.println("INDEX OF TOP LEFT OF Cr Cb block : " + M + "   "+ N);
+	                    	   blockData =  getBlockData(CbData, M, N);                    	   
+	                    	   CbBlocks[index/2] = new Block(blockData, YuvImage.Cb_COMP);           
+	                    	   blockData =  getBlockData(CrData, M, N);
+	                    	   CrBlocks[index/2] = new Block(blockData, YuvImage.Cr_COMP); 
+	                       } 
+	                       index++; 
+	                       
+	                   } 
+	               } 
+	        	   MCU mcu = new MCU(YBlocks, CbBlocks, CrBlocks);
+	               list.add(mcu); 
+	              }
+	         }
+	        	  
+	        return list;
+	}
+	   private List<MCU> sample444(YuvImage yuvImg) {
+		   Component Y = yuvImg.Y;
+    	   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
+	       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
+	       int[][] YData = Y.getData(); 
+	       int[][] CbData = Cb.getData(); 
+	       int[][] CrData = Cr.getData(); 
+	    
+	       List<MCU> list = new ArrayList<>();
+	       for (int i = 0; i < h; i += Block.SIZE) { 
+	           for (int j = 0;j < w;  j += Block.SIZE) { 
+	               Block[] YBlocks = new Block[1]; 
+	               Block[] CbBlocks = new Block[1]; 
+	               Block[] CrBlocks = new Block[1]; 
+	             
+	               
+	               int[][] blockData =  getBlockData(YData,i,j);
+	               Block block = new Block(blockData, YuvImage.Y_COMP);
+	               YBlocks[0] = block; 
+	               
+	               blockData = getBlockData(CbData,i,j);
+	               block = new Block(blockData, YuvImage.Cb_COMP);
+	               CbBlocks[0] = block; 
+	               
+	               blockData = getBlockData(CrData,i,j);
+	               block = new Block(blockData, YuvImage.Cr_COMP);
+	               CrBlocks[0] = block; 
+	               
+	               MCU mcu = new MCU (YBlocks, CbBlocks, CrBlocks);
+	               list.add(mcu); 
+	               System.out.println("---------------add one MCU to MCT ARRAY ------------------------");
+	           } 
+	       } 
+	       return list;
+		}
+	
+	   private List<MCU> sample420(YuvImage yuvImg) {
+		   Component Y = yuvImg.Y;
+		   Component Cb = yuvImg.getComponent(YuvImage.Cb_COMP); 
+	       Component Cr = yuvImg.getComponent(YuvImage.Cr_COMP); 
+	       int[][] YData = Y.getData(); 
+	       int[][] CbData = Cb.getData(); 
+	       int[][] CrData = Cr.getData(); 		       
+	   //    print(YData);
+	   //    print(CbData);
+	   //    print(CrData);
+	       List<MCU> list = new ArrayList<>();
+	       
+	       for (int i = 0; i < Y.getSize().height; i += Block.SIZE*2) { 
+	           for (int j = 0;j < Y.getSize().width;  j += Block.SIZE*2) { 		             
+	        	   Block[] YBlocks = new Block[4]; 
+	               Block[] CbBlocks = new Block[1]; 
+	               Block[] CrBlocks = new Block[1]; 
+	               int index = 0; 
+	        	   for (int x = 0; x < 2;  x++) {       // 2 blocks vertical for each component 
+	                   for (int y = 0; y < 2;  y++) {
+	                	   // 2 blocks horizontal for Y, 1 block for Cb and Cr 
+	                	   int M = i + x*Block.SIZE;
+	                	   int N = j+  y*Block.SIZE;
+	                	   int[][] blockData =  getBlockData(YData,M, N);	   
+	                	//   System.out.println("INDEX OF TOP LEFT OF y block : " + M + "   "+ N);
+	                	   YBlocks[index] = new Block(blockData, YuvImage.Y_COMP); 
+	                       if (y == 0 && x == 0) {  
+	                    	   // get also Cb and Cr blocks 
+	                    	   M = i/2;
+	                    	   N = j/2;
+	                    	  // System.out.println("INDEX OF TOP LEFT of Cr cb: " +  M + "   "+ N);
+	                    	   blockData =  getBlockData(CbData, M, N);                    	   
+	                    	   CbBlocks[index] = new Block(blockData, YuvImage.Cb_COMP);           
+	                    	   blockData =  getBlockData(CrData, M, N);
+	                    	   CrBlocks[index] = new Block(blockData, YuvImage.Cr_COMP); 
+	                       } 
+	                       index++; 
+	                   } 
+	               }        	   
+	               MCU mcu = new MCU(YBlocks, CbBlocks, CrBlocks);
+	               list.add(mcu); 
+	           } 
+	       } 
+	       return list;
+		}
+	
+	private int[][] getBlockData(int[][] compData, int X, int Y) { 
 	       int[][] b = new int[Block.SIZE][Block.SIZE]; 
 	       for (int i = 0;i < Block.SIZE; i++) { 
 	           for (int j = 0; j < Block.SIZE; j++) { 
@@ -224,7 +229,7 @@ public class ImageGrid {
 		      System.out.println("old IMAGE W" + image.getWidth(null));
 		      SizeTrimer st = new SizeTrimer();
 		      
-		      int SamplingRatio = 0;
+		      int SamplingRatio = 1;
 		      
 		      image = st.resizeImage(image, SamplingRatio);
 		      System.out.println("new IMAGE H" + image.getHeight(null));

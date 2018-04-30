@@ -36,7 +36,9 @@ public class YuvImage {
 	   } 
 	   public static void showComponent(Component Y) {
 		   System.out.println(Y.getType());
+		 
 		   int[][] data = Y.getData();
+		   System.out.println("Dimension is " + "  " + data.length +"   " +data[0].length);
 		   for (int[] d : data) {
 			   	for (int i : d) {
 			   	  System.out.print(i+" ");
@@ -56,6 +58,7 @@ public class YuvImage {
 	           Component Y = new Component(new int[h][w], 0);
         	   Component Cb = new Component(new int[h][w], 1);
         	   Component Cr = new Component(new int[h][w], 2);
+        	   
 	           if (grabber.grabPixels())   {
 	        	   // fill in the Component data from Rgb INFO
 	        	   for (int i = 0; i < info.length; i++) {
@@ -69,9 +72,11 @@ public class YuvImage {
 			            Cr.data[m][n] = 128 + (int) (0.5f*r - 0.4187f*g - 0.0813f*b); 	   	               
 	        	   }   
 	           }
-	       //    showComponent(Y);
-	       //    showComponent(Cr);
-	       //    showComponent(Cb);
+	           System.out.println("Before Sampling ");
+	           showComponent(Y);
+	           showComponent(Cb);
+	           showComponent(Cr);
+	           
 	           return new YuvImage(Y,Cb,Cr ,Sampler.YUV_444); 
 	        } 
 	        catch (Exception e) {} 

@@ -13,17 +13,21 @@ public class RunLengthEncoder {
 	
 	public static class Cell { 
 		    int nonZeroValue;
-		    int sequantialZero;
+		    int sequentialZero;
 		    Cell(int z, int NonZeroValue) { 
 		      	this.nonZeroValue = NonZeroValue;
-		      	this.sequantialZero = z;
+		      	this.sequentialZero = z;
 		    } 
 		    public int getValue(){
 		    	return nonZeroValue;
 		    }
 		    public int getZero(){
-		    	return sequantialZero;
+		    	return sequentialZero;
 		    }
+		    public void print() {
+		    	System.out.print("(" + sequentialZero + " , "+ nonZeroValue +" )");
+		    }
+		    
 		
 	}		
 	
@@ -49,9 +53,17 @@ public class RunLengthEncoder {
 	        	result[i] = list.get(i);
 	        }
 	        return result;
+	        
 	        	
 	}
-
+	public void print(Cell[] cell) {
+		System.out.println("after AC RUN Length Encoding ....");
+		for (Cell c : cell) {
+			c.print();
+		}
+		System.out.println();
+		
+	} 
 	public void encodeAC( int[] array, int component, HuffmanEncoder hf) {
 		Cell[] cells = RLEncoding(array);
 		 int[][] huffmanTable = hf.getHuffmanTable(component, false); // false for AC,  True for DC;
@@ -61,7 +73,7 @@ public class RunLengthEncoder {
              if (i < cells.length-1 || Value != 0) { 
                  System.out.println(" Coding run-level: (" + Zero + " , " + Value + ")"); 
                  while (Zero > 15) {
-                 	 System.out.println("(15  , 0 ) " + huffmanTable[0xF0][0] + "," + huffmanTable[0xF0][1] + "  ");
+                 	   System.out.println("(15  , 0 ) " + huffmanTable[0xF0][0] + "," + huffmanTable[0xF0][1] + "  ");
          //            bufferIt(huffmanTable[0xF0][0], huffmanTable[0xF0][1], bos); // 超过15 个0 ， 直接buffer 固定的数；（15, 0）
                      Zero -= 16; 
                  } 
@@ -77,8 +89,11 @@ public class RunLengthEncoder {
                  } 
                  int tableIndex = (Zero << 4) + bitLength;  // 合并成一个byte  (4'BIT consecutive + 4'BIT valueLength)
                  // 查 huffman 表 编码；
-                 System.out.println("Encode AC " + huffmanTable[tableIndex][0] + " , " + huffmanTable[tableIndex][1] + "  "); 
-      //           bufferIt(huffmanTable[tableIndex][0], huffmanTable[tableIndex][1], bos); 
+                 
+                 System.out.println("After huffman encoding: " + huffmanTable[tableIndex][0] + " , " + huffmanTable[tableIndex][1] + "  "); 
+   
+                //      bufferIt(huffmanTable[tableIndex][0], huffmanTable[tableIndex][1], bos);
+                 
                  System.out.println("bitlen   temp " + bitLength + " , " + complement + "  "); 
      //            bufferIt(complement, bitLength, bos); 
              } 

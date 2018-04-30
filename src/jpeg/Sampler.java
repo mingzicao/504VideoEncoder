@@ -53,18 +53,29 @@ public class Sampler {
 			  int[][] new_data = new int [new_dim.height][new_dim.width];
 			  Dimension sampleDistance = getSampleDistances(sr);
 			  
-			 // System.out.println("sample distance " +" "+ sampleDistance.width +" " +sampleDistance.width +" ");
+		//	  System.out.println("sample distance " +" "+ sampleDistance.width +" " +sampleDistance.width +" ");
+			  
 			  int S = sampleDistance.height * sampleDistance.width; 
-			 
+			//  System.out.println(" sampling S =  " +" "+ S +" ");
+			  
+		//	   System.out.println("Ssssssssss  smpling  Component " + compType);
 			  for (int i = 0; i < old_dim.height; i++) { 
 				   for (int j = 0; j < old_dim.width; j++) { 
-					   new_data[i / sampleDistance.height][j / sampleDistance.width] += old_data[i][j]; 
+					   int I = i / sampleDistance.height;
+					   int J = j / sampleDistance.width;
+					//   System.out.println("i " +  I +" j : "+ J);
+					   new_data[I][J] += old_data[i][j]; 
+				//	   System.out.print (" i j( " +I+"  "+ J+ ") = "+ new_data[I][J]);
 				   } 
+			//	   System.out.println();
 			  } 
+		//	  System.out.println("new  data______________________________  ");
 			  for (int i = 0; i < new_dim.height; i++) { 
 				   for (int j = 0; j < new_dim.width; j++) { 
 					   new_data[i][j]  /= S; 
+			//		   System.out.print( new_data[i][j]+" ");
 				   } 
+			//	   System.out.println();
 			  } 
 			  
 			  return new Component(new_data, compType); 			  

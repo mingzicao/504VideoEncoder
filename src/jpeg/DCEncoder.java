@@ -5,7 +5,7 @@ import java.io.IOException;
 
 
 public class DCEncoder {
-	 protected void encodeDC(int component, HuffmanEncoder hf)  { 
+	 public void encodeDC(int component, HuffmanEncoder hf)  { 
 		  System.out.println("-------------------------   encoding  DC  ---------------------"); 
 		  int curDC =  hf.cur.getData()[0][0]; 
 		  int prevDC = 0 ;

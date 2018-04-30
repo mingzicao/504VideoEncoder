@@ -7,15 +7,32 @@ import java.io.IOException;
 import jpeg.RunLengthEncoder.Cell;
 
 /*	
- * 	input: Image Object
- *  Image - [sizeTrimer] - rgbImage
+ *  In Image Encoder: 开始压缩就是调用image compress 函数：
+ *   When init a new Image Encoder, also initialize a new HuffEncoder instance;
+ * 	a HuffEncoder contains RLE encoder and a DCEncoder;
+ * 	the table uses for HuffmanCoding is created with HUffEncoder initialization;
+ *  流程 你可以根据HuffmanEncoder  里面的main 函数的调用顺序 来梳理 
+ *  
+ * 	input: Image Object > ImageEncoder > 调用imageCompress() 函数
+ * 
+ *  Image rgbImage - [SizeTrimer] - resized rgbImage
  *  rgbImage - [ YuvConverter] - YUVimage
  *  YuvImage + SampleRatio - [Sampler] - YuvImage'
- *  YUVImage'. three Y Cr Cb - [ MCUConverter] - MCU
- *  MCU - [ BlockConverter] - 3 block Array;
- *  each Block - [DCT Transfer] - [Quantizer] -  dctBlock;
- *  dctBlock - [ AC DC encoder] - [VLIencoder + Huffman encoder] -jpg.file;
- *  output: an jpgFile; put in the outputStream;
+ *  
+ *  YUVImage'.  Y Cr Cb - [ imageGrid ] - MCU[] array ( each MCU  contains 3  block[] : Y[] , Cr[ ], Cb[]) 
+ *  
+ *  
+ *  each Block  - [DCT.forward] - [Quantizer.quatize] -  Quantized dctBlock;
+
+ * 
+ * 	QuantizedBlock QB  -  [Block. ZigZag]  - 1D - block
+ * 
+ * 					-	 		[  DC Encoder  	] - 
+ * 	1D  block	HUffEncoder.					 		>  HuffmanEncoding   /   VLI Encoding  > jpeg write to OUTStream;
+ * 	 				- 	 		[  AC RLE Encoder  ] -     (查表)
+ * 
+ *  现在想跑的话，在HuffmanEncoder 下有一个main 函数， 跑完之后结果都算出来了 我把 bufferIt 注释掉了 BufferIt这一步 就是往BOS 写东西
+ *  再输出， jpeg的 header 文件我还没往里面加， 要是需要jpeg 的话看 mit 小哥的 Encoder.java 类里面 有写jpeg 头文件的部分  
  
  * */
 public class ImageEncoder {
@@ -53,10 +70,7 @@ public class ImageEncoder {
 	    		 throw new IllegalArgumentException("Invalid subsampling Ratio, please input 0/ 1/ 2"); 
 	    	}
 	    }
-	    
-	    
-	    
-	    
+    
 	    protected void imageCompress(BufferedOutputStream bos) throws IOException { 
 	        HuffmanEncoder hf = new HuffmanEncoder(bos); 
 	    	Image resizedImage = trimmer.resizeImage(rgbImage, samplingRatio);

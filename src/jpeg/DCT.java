@@ -7,34 +7,73 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import jpeg.YuvImage.Component;
+
 public class DCT {
 	double[][] dctData; 
+	int Component;
+	public static DCT FDCT(Block b){   //偶余弦变换EDCT 
+    	int[][] input = b.getData();
+    	int N = 8;
+    	double[][] output = new double[N][N];
+        short i,j,p,q;
+        double coefficient1,coefficient2;
+        double PI = Math.PI;
+        for(p=0;p<N;p++)
+        {
+            for(q=0;q<N;q++)
+            {
+                if(p==0) coefficient1=Math.sqrt(1.0/N);
+                else coefficient1=Math.sqrt(2.0/N);
+                if(q==0) coefficient2=Math.sqrt(1.0/N);
+                else coefficient2=Math.sqrt(2.0/N);
+                double tmp=0.0;
+                for(i=0;i<N;i++)
+                    for(j=0;j<N;j++)
+                        tmp+=input[i][j]*Math.cos((2*i+1)*PI*p/(2*N))*Math.cos((2*j+1)*PI*q/(2*N));//形成新的矩阵 
+                output[p][q]=Math.round(coefficient1*coefficient2*tmp);
+            }
+        }
+       // print(output);
+        return new DCT(output, b.type);
+    }
+    
 	
 	
-	public static DCT FDCT (Block b) {
-		 int[][] data = b.getData(); 
-		 double DIV = 1d / Math.sqrt(2); 
-		 double[][] dctBlock = new double[Block.SIZE][Block.SIZE]; 
-		 for (int u = 0; u < Block.SIZE; u++) { 
-			 for (int v = 0; v < Block.SIZE; v++) { 
-				 double ud = u == 0 ? DIV : 1;
-				 double vd = v == 0 ? DIV : 1;
-				 double pre = ud * vd / 4; 
-				 double sum = 0; 
-				 for (int i = 0; i < Block.SIZE; i++) { 
-					 for (int j = 0; j < Block.SIZE; j++) { 
-						 sum += (data[i][j] - 128) * Math.cos((2 * i + 1) * u * Math.PI / 16) * Math.cos((2 * j + 1) * v * Math.PI / 16); 
-					 } 
-				 } 
-				 dctBlock[u][v] = pre * sum; 
-		  } 
-		 } 
-
-		 return new DCT(dctBlock); 
-	}
 	
-    public DCT(double[][] dctData) { 
+	  public static Block IDCT(DCT d) {
+		  double[][] input = d.getData();
+	  		int N = 8;
+	  		int[][] output = new int[8][8];
+		    short i,j,p,q;
+		    double coefficient1,coefficient2;
+		    double PI = Math.PI;
+		    for(i=0;i<N;i++)
+		    {
+		        for(j=0;j<N;j++)
+		        {
+		            double tmp=0.0;
+		            for(p=0;p<N;p++)
+		                for(q=0;q<N;q++)
+		                {
+		                    if(p==0) coefficient1=Math.sqrt(1.0/N);
+		                    else coefficient1=Math.sqrt(2.0/N);
+		                    if(q==0) coefficient2=Math.sqrt(1.0/N);
+		                    else coefficient2=Math.sqrt(2.0/N);
+		                    tmp+= coefficient1 *coefficient2*input[p][q]*Math.cos((2*i+1)*PI*p/(2*N))*Math.cos((2*j+1)*PI*q/(2*N));
+		                }
+		                output[i][j]=(int)(Math.round(tmp));
+		        } 
+		    }
+	//	   print(output);
+		   return new Block(output, d.Component);
+		}    
+	 
+	
+	
+    public DCT(double[][] dctData, int type) { 
         if (dctData != null) { 
+        	this.Component = type;
             
         	if (dctData.length == Block.SIZE && dctData[0].length ==  Block.SIZE) 
                 this.dctData = dctData; 
@@ -44,30 +83,8 @@ public class DCT {
         else 
             throw new IllegalArgumentException("The DCT block data must not be null."); 
     } 
- 
-    public double[][] getData() { 
-        return dctData; 
-    } 
     
-    
-    public static void print(int[][] b) {
-		   for(int[] i : b) {
-			   for (int j : i) {
-				   System.out.print(j + " ");
-			   }
-			   System.out.println();
-		   }
-	   }
-    public static void print(double[][] b) {
-		   for(double[] i : b) {
-			   for (double j : i) {
-				   System.out.print(j + " ");
-			   }
-			   System.out.println();
-		   }
-	   }
-	      
-    
+  
     
 	   public static void main(String[] args) {
 			
@@ -100,20 +117,58 @@ public class DCT {
 		    	 Block[] Cb = m.getCbBlockArray();
 		    	
 		    	 for (Block b: Y) {
-		    		 DCT dctYBlock = DCT.FDCT(b);
+		    		 print(b.getData());
+		    		 DCT d = DCT.FDCT(b);
+		    		 Block newb =  DCT.IDCT(d);
+		    		 
+		    		 
 		    	 }		      	
 		    	 for (Block b: Cr) {
-		    		 DCT dctCbBlock = DCT.FDCT(b);
+		    		 print(b.getData());
+		    	
+		    		 DCT d = DCT.FDCT(b);
+		    		 Block newb =  DCT.IDCT(d);
 		    	 }
 		    	 for (Block b: Cb) {
-		    		 DCT dctCrBlock = DCT.FDCT(b);
+		    		 print(b.getData());	
+		    		
+		    		 DCT d = DCT.FDCT(b);
+		    		 Block newb =  DCT.IDCT(d);
+		    		 
 		    	 }
-		      }
+		    }
+		      
 		    }
 		    catch(IOException e){
 		      System.out.println("Error: "+e);
 		    }
 		}
 	   
-	  
+	   
+	    
+	    
+	    
+	    public double[][] getData() { 
+	        return dctData; 
+	    } 
+	    
+	    
+	    public static void print(int[][] b) {
+			   for(int[] i : b) {
+				   for (int j : i) {
+					   System.out.print(j + " ");
+				   }
+				   System.out.println();
+			   }
+		   }
+	    public static void print(double[][] b) {
+			   for(double[] i : b) {
+				   for (double j : i) {
+					   System.out.print(j + " ");
+				   }
+				   System.out.println();
+			   }
+		   }
+		      
+	    
 }
