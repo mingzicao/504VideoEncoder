@@ -30,14 +30,17 @@ public class Sampler {
 			Component Y = new Component(yuv.Y.data, YuvImage.Y_COMP);
 			Component Cb = samplingComponent(yuv.Cb, sr, YuvImage.Cb_COMP);
 			Component Cr = samplingComponent(yuv.Cr, sr, YuvImage.Cr_COMP);
+			 	System.out.println("after Sampling ");
+	           YuvImage.showComponent(Y);
+	           YuvImage.showComponent(Cb);
+	           YuvImage.showComponent(Cr);
 			return new YuvImage(Y, Cb, Cr, sr); 	
 		}
-	
+	//	public YuvImage unSampling
 		private Component samplingComponent(Component component, int sr,  int compType) { 
 			  Dimension old_dim = component.getSize(); 
-			//  System.out.println(" old dimention: w h" +" "+ old_dim.width +" " +old_dim.height +" ");
 			  Dimension new_dim = null;
-//resize(old_dim, sr);			
+	
 			   if (sr == YUV_422) {
 				  System.out.println(" sampling ratio : 4:2:2");
 				  new_dim =  new Dimension(old_dim.width / 2, old_dim.height); 
@@ -47,35 +50,29 @@ public class Sampler {
 			  } else {
 				  new_dim = old_dim;
 			  }
-			  
-			//  System.out.println(" new dimention: w h" +" "+ new_dim.width +" " +new_dim.height +" ");
+	
 			  int[][] old_data = component.getData();
 			  int[][] new_data = new int [new_dim.height][new_dim.width];
 			  Dimension sampleDistance = getSampleDistances(sr);
-			  
-		//	  System.out.println("sample distance " +" "+ sampleDistance.width +" " +sampleDistance.width +" ");
+	
 			  
 			  int S = sampleDistance.height * sampleDistance.width; 
-			//  System.out.println(" sampling S =  " +" "+ S +" ");
-			  
-		//	   System.out.println("Ssssssssss  smpling  Component " + compType);
+		
 			  for (int i = 0; i < old_dim.height; i++) { 
 				   for (int j = 0; j < old_dim.width; j++) { 
 					   int I = i / sampleDistance.height;
 					   int J = j / sampleDistance.width;
-					//   System.out.println("i " +  I +" j : "+ J);
+			
 					   new_data[I][J] += old_data[i][j]; 
-				//	   System.out.print (" i j( " +I+"  "+ J+ ") = "+ new_data[I][J]);
+		
 				   } 
-			//	   System.out.println();
+			
 			  } 
-		//	  System.out.println("new  data______________________________  ");
+		
 			  for (int i = 0; i < new_dim.height; i++) { 
 				   for (int j = 0; j < new_dim.width; j++) { 
 					   new_data[i][j]  /= S; 
-			//		   System.out.print( new_data[i][j]+" ");
 				   } 
-			//	   System.out.println();
 			  } 
 			  
 			  return new Component(new_data, compType); 			  
@@ -109,15 +106,19 @@ public class Sampler {
 		      Image image = ImageIO.read(f);
 		      BufferedImage buffered = (BufferedImage) image;
 		      System.out.println("Reading complete.");
+		      int SR = 1;
 		      System.out.println("old IMAGE H" + image.getHeight(null));
 		      System.out.println("old IMAGE W" + image.getWidth(null));
 		      SizeTrimer st = new SizeTrimer();
+		      
 		      image = st.resizeImage(image, 1);
 		      System.out.println("new IMAGE H" + image.getHeight(null));
 		      System.out.println("new IMAGE W" + image.getWidth(null));
-		      YuvImage yuv = YuvImage.rgbToYuv(image);
+		      
+		      YuvImage yuv = YuvImage.rgbToYuv(image,SR);
 		      Sampler sp = new Sampler();
-		      yuv = sp.sampling(yuv, 2);
+		      
+		      yuv = sp.sampling(yuv, SR);
 		      YuvImage.showComponent(yuv.Y);
 		      YuvImage.showComponent(yuv.Cb);
 		      YuvImage.showComponent(yuv.Cr);

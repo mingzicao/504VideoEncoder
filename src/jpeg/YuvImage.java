@@ -47,7 +47,7 @@ public class YuvImage {
 		   }
 	   }
 	 
-	   public static YuvImage rgbToYuv(Image rgbImg) { 
+	   public static YuvImage rgbToYuv(Image rgbImg, int sr) { 
 		   try { 
 			   int w = rgbImg.getWidth(null); 
 			   int h = rgbImg.getHeight(null); 
@@ -77,7 +77,7 @@ public class YuvImage {
 	           showComponent(Cb);
 	           showComponent(Cr);
 	           
-	           return new YuvImage(Y,Cb,Cr ,Sampler.YUV_444); 
+	           return new YuvImage(Y,Cb,Cr, sr); 
 	        } 
 	        catch (Exception e) {} 
 	        return null; 
@@ -143,7 +143,7 @@ public class YuvImage {
 	      System.out.println("Reading complete.");
 	      SizeTrimer st = new SizeTrimer();
 	      st.resizeImage(image, 1);
-	      YuvImage yuv = YuvImage.rgbToYuv(image);
+	      YuvImage yuv = YuvImage.rgbToYuv(image, 1);
 	      
 	    }
 	    catch(IOException e){

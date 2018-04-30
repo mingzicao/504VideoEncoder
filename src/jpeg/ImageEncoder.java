@@ -75,7 +75,7 @@ public class ImageEncoder {
 	        HuffmanEncoder hf = new HuffmanEncoder(bos); 
 	    	Image resizedImage = trimmer.resizeImage(rgbImage, samplingRatio);
 	        // showImage(scaledImg); 
-	        YuvImage yuv = YuvImage.rgbToYuv(resizedImage); 	        
+	        YuvImage yuv = YuvImage.rgbToYuv(resizedImage, samplingRatio); 	        
 	        yuv = sampler.sampling(yuv, samplingRatio);
 	        ImageGrid imageGrid = new ImageGrid();
 	      //  System.out.println(" ----------------------    check MCU ARRAY - --------------------------");	 
