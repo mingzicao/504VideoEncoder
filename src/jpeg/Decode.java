@@ -20,7 +20,7 @@ public class Decode {
 	int blockNum            =  0;
 	int GOP                 = 4;
     public int imageHeight         = 0;
-    public  int imageWidth          = 0;
+    public int imageWidth          = 0;
     int frameRate           = 0;
     int numberOfFrames      = 0;
     byte[] bArray;
@@ -158,18 +158,20 @@ public class Decode {
     		String readPath;
     		
     		System.out.println("# of frames" + numberOfFrames);
-    		for(int i = 10; i <= 10 + numberOfFrames -1; i++) {
-				if(i < 100) {
-					readPath = "input/test00" + i + ".JPG";
-					
-				}else {
-					readPath = "input/test0" + i + ".JPG";
-				}
-						
+    		for(int i = 0; i <= numberOfFrames - 1; i++){
+//    		for(int i = 10; i <= 10 + numberOfFrames -1; i++) {
+//				if(i < 100) {
+//					readPath = "/Users/apple/Documents/workspace/ImageCompression/input/test00" + i + ".JPG";
+//					
+//				}else {
+//					readPath = "/Users/apple/Documents/workspace/ImageCompression/input/test0" + i + ".JPG";
+//				}
+				readPath = "input/test" + i + ".JPG";		
 				System.out.println("read path" + readPath);
 				File f = new File(readPath);
 				Image image = ImageIO.read(f);
-				allFrame[i-10] = image;
+				//allFrame[i-10] = image;
+				allFrame[i] = image;
 				
     		}
     	
@@ -182,7 +184,7 @@ public class Decode {
 			YuvImage imyuv = YuvImage.rgbToYuv(im,1);	
 			imyuv = sp.sampling(imyuv, 1);
 		    ImageGrid imageGrid = new ImageGrid(imageHeight,imageWidth);
-	//	System.out.println("image grid h w  1111  " + imageGrid.h + " "+ imageGrid.w);	
+		System.out.println("image grid h w  1111  " + imageGrid.h + " "+ imageGrid.w);	
     		for(int i = 0; i< allFrame.length;i++) {
     			Image ii = allFrame[i];			
     			ii  = st.resizeImage(ii, 1);
@@ -193,7 +195,7 @@ public class Decode {
     			bufferedMCU[i] = immcu;
     		}
     			
-    	//	System.out.println("image grid h w  22   " + imageGrid.h + "  "+ imageGrid.w);		
+    		System.out.println("image grid h w  22   " + imageGrid.h + "  "+ imageGrid.w);		
     		for(int j = 0; j <bufferedMCU.length;j++) {
     			MCU[] mm = bufferedMCU[j];
     			
@@ -222,9 +224,9 @@ public class Decode {
 	    		for(Image ii: test) {
 	    		String outputpre = "output00";
 	    		String outputName = outputpre + Integer.toString(i++);
-	    		String outputPath = "output/";
+	    		String outputPath = "/Users/apple/Documents/workspace/ImageCompression/output/";
 	    	    String output = outputPath + outputName + format;
-	    	//    System.out.println("open output file " + output);
+	    	    System.out.println("open output file " + output);
 	    	    File outputfile = new File(output);
 	    	    
 	    	    ImageIO.write((RenderedImage) ii, "jpg", outputfile);

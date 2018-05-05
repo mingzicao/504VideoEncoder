@@ -71,14 +71,14 @@ public class FilesToMov implements ImageProvider, FrameSavedListener{
 		String readPath = "";
 		File[] listFiles = new File(FilePath).listFiles();
 	//	int bound = listFiles.length;
-		for(int i = 0; i < bound ; i++) {
-			readPath = FilePath + "/out00" + i + ".jpg";
-			System.out.println(readPath);
+		for(int i = 0; i < bound - 1; i++) {
+			readPath = FilePath + "/output00" + i + ".jpg";
+		//	System.out.println(readPath);
 			fileArray.add(readPath);
 			System.out.println("done fame" + i);
 		}
 		
-		new FilesToMov(fileArray, MovieInfoProvider.TYPE_QUICKTIME_JPEG, "Result111.mov", Height, Width);
+		new FilesToMov(fileArray, MovieInfoProvider.TYPE_QUICKTIME_JPEG, "Result111.mp4", Height, Width);
 		System.out.println("movie done");
 	}
 }

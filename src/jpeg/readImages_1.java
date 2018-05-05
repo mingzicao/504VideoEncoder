@@ -20,6 +20,18 @@ public class readImages_1 {
 	MCU[][] bufferedMCU;
 	static ImageGrid imageGrid;
 	
+	public static void main(String args[]) throws IOException {
+		File[] files = new File[10];
+		
+		String readPath = "";
+		for(int i = 0; i <= 9; i++) {
+			readPath = "/Users/limuzi/Downloads/test images/image" + i + ".jpg";
+			File f = new File(readPath);
+			files[i] = f;
+		}
+		
+		encoderun(files,1,80);
+	}
 	
 	
 	public static void encoderun(File[] files,int SamplingRatio,int quantityNum) throws IOException {
@@ -64,7 +76,8 @@ public class readImages_1 {
 		long end = System.currentTimeMillis();
 		long costtime = end - start;
 		float cossec = (float)costtime/1000;
-		
+		System.out.println("time cost for encode all images are "  + cossec);
+	    ///  Decode d = new Decode();
 	}
 	long headerLen;
 	
@@ -108,7 +121,7 @@ public class readImages_1 {
 		int count = 0;
 		MCU[] IMCU = null;
 		
-		for(int j = 0; j < allFrame.length/2;j++) {
+		for(int j = 0; j < allFrame.length/8;j++) {
 			Image frame = allFrame[j];
 			SizeTrimer st = new SizeTrimer();
 			int SamplingRatio = 1;

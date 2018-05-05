@@ -306,8 +306,7 @@ public class GUI3 extends JFrame{
 					File getFile = new File("output/");
 					File[] files = getFile.listFiles();
 					FilesToMov.genMovie("output",de.imageHeight, de.imageWidth, files.length - 1);
-				}
-				catch (Exception e1) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

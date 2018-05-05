@@ -14,25 +14,7 @@ import jpeg.Quantizer;
 import jpeg.Sampler;
 import jpeg.readImages_1;
 //import movieplus.*;
-/*this is the lastest version
- * 
- * 
- * 
- * 1.  Under src/jpeg : run this CML:
-javac -cp ".:./src/jpeg/libs/*" *.java
-
-2 back to /src directory, run this CML
-
-java  -cp “.:./src/jpeg/libs/*"  jpeg/VideoEncoderTest -s 4:2:2 -q 5 -p /Users/apple/Documents/workspace/ImageCompression/input  -n 3
-
--s : you can input a different sampling ratio
--q: you can input a qualify factor btw 5 - 100
--p: the input directory
--n: how many pictures do you want to encode
-
-
- * 
- * */
+/*this is the lastest version*/
 public class VideoEncoderTest {
 
     private static final String SAMPLING_OPTION = "-s"; 
@@ -51,7 +33,45 @@ public class VideoEncoderTest {
     	
         try { 
           	int j = 0;     	
-          	if (args.length == 2 || args.length == 4 ||  args.length == 6 || args.length == 8 ) { 
+          	if (args.length == 0) {
+          		System.out.println("zhongzhengxiang "); 
+          		String samplingString = YUV_422; 
+                int samplingRatio = Sampler.YUV_422; 
+                int qualityFactor = Quantizer.DefalutQualityFactor; 
+                int ImageNumber = 3;
+                String readPath =  "/Users/apple/Documents/workspace/ImageCompression/input"; 
+                System.out.println(" sampling ratio  : " + samplingRatio);
+                System.out.println(" quality factor : " + qualityFactor);
+                System.out.println("image file to compress: " + readPath); 
+        //      System.out.println("compressed image file: " + compressedImgFile);
+                System.out.println(" # of images to encode: " + ImageNumber);
+                File[] files = new File[ImageNumber];
+        		  String s = null;
+                for(int i = 10; i < (ImageNumber+10); i++) {
+	        			if(i < 100) {
+	        				 s = readPath  + "/test00" + i + ".JPG";
+	        				
+	        			} else {
+	        			     s = readPath  + "/test00" + i + ".JPG";
+	        				
+	        			}	
+        				File f = new File(s);
+        				System.out.println(" reading image  ... " + readPath + " " + i);
+        				int index = i-10;
+        			//	System.out.println(" i- 10 " + index);
+        				files[i-10] = f;
+         	
+        			//files[i-10] = f;
+        			}
+               
+                readImages_1.encoderun(files, samplingRatio, qualityFactor);
+                /*readImage */
+                Decode de = new Decode(new File("encoding.txt"));
+                de.write();
+                FilesToMov.genMovie("/Users/apple/Documents/workspace/ImageCompression/output", 770, 1026, ImageNumber);
+                
+          	}
+          	else if (args.length == 2 || args.length == 4 ||  args.length == 6 || args.length == 8 ) { 
            
             	  String readPath  ="";
               //  String compressedImgFile = "";
@@ -107,11 +127,11 @@ public class VideoEncoderTest {
                 System.out.println("  ---------------------- write to Disk  ---------------------- ");
                 de.write();
                 System.out.println("  ----------------------make movie now  ---------------------- ");
-                FilesToMov.genMovie("/output", 770, 1026, ImageNumber);
+                FilesToMov.genMovie("/Users/apple/Documents/workspace/ImageCompression/output", 770, 1026, ImageNumber);
                
             } 
             else 
-                System.out.print("\nUsage: java jpeg.test.JPEGEncoder [-s <samplingRatio>] [-q <qualityFactor>] [-p <Input File directory>] [-n <Total number of Images >]"); 
+                System.out.print("\nUsage: java jpeg.test.JPEGEncoder [-s <samplingRatio>] [-q <qualityFactor>] [-o <outputFile>] [-p <Input File directory>] [-n <Total number of Images >]"); 
         } 
         catch (Exception e) { 
             System.out.print("\nException occurred: " + e.getMessage() + "\n"); 
