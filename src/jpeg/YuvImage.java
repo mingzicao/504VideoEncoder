@@ -47,6 +47,43 @@ public class YuvImage {
 		   }
 	   }
 	 
+	   public static Image yuvToRgb (YuvImage yuv) {
+		 
+	        int[][] Ydata = yuv.Y.getData();
+	        int[][] CrData =yuv.Cr.getData();
+	        int[][] CbData = yuv.Cb.getData();
+	        int h = Ydata.length;
+	        int w = Ydata[0].length;
+	        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB); 
+//	        System.out.println("Ydata length: " + Ydata.length + "Ydata[0] length: " + Ydata[0].length);	  
+	        for (int j = 0 ; j < Ydata.length; j++) {
+		        	for (int i = 0; i < Ydata[0].length; i++) {
+//		        		System.out.println("I: " + i + " j: " + j);
+		        		
+		        		int[] rgb = new int[3];
+		        		int y = Ydata[j][i];
+		        		int Cr = CrData[j][i];
+		        		int Cb = CbData[j][i];
+		        		rgb[0] = ((int) ( 298.082 * (y - 16)   +
+		                        408.583 * (Cr - 128)    )) >> 8;
+		        		rgb[1] = ((int) ( 298.082 * (y - 16)   +
+				                       -100.291 * (Cb - 128) +
+				                       -208.120 * (Cr - 128)    )) >> 8;
+				        rgb[2] = ((int) ( 298.082 * (y - 16)   +
+				                        516.411 * (Cb - 128)    )) >> 8;
+			
+					    for (int x=0; x<3; x++) {
+					          if (rgb[x] > 255)
+					              rgb[x] = 255;
+					          else if (rgb[x] < 0)
+					              rgb[x] = 0;
+					     }
+					     int RGB = (rgb[0]<<16) + (rgb[1]<<8) + rgb[2];
+		        		 image.setRGB(i, j, RGB);		 
+		        	}
+	        }
+	        return image;	     
+	   }
 	   public static YuvImage rgbToYuv(Image rgbImg, int sr) { 
 		   try { 
 			   int w = rgbImg.getWidth(null); 
@@ -56,8 +93,8 @@ public class YuvImage {
 	           PixelGrabber grabber = new PixelGrabber(rgbImg,0,0,w,h,info,0,w); 
 	           //init three component then init a new YUV image;
 	           Component Y = new Component(new int[h][w], 0);
-        	   Component Cb = new Component(new int[h][w], 1);
-        	   Component Cr = new Component(new int[h][w], 2);
+        	   		Component Cb = new Component(new int[h][w], 1);
+        	   		Component Cr = new Component(new int[h][w], 2);
         	   
 	           if (grabber.grabPixels())   {
 	        	   // fill in the Component data from Rgb INFO
@@ -72,11 +109,11 @@ public class YuvImage {
 			            Cr.data[m][n] = 128 + (int) (0.5f*r - 0.4187f*g - 0.0813f*b); 	   	               
 	        	   }   
 	           }
-	           System.out.println("Before Sampling ");
-	           showComponent(Y);
-	           showComponent(Cb);
-	           showComponent(Cr);
-	           
+//	           System.out.println("Before Sampling ");
+//	           showComponent(Y);
+//	           showComponent(Cb);
+//	           showComponent(Cr);
+//	           
 	           return new YuvImage(Y,Cb,Cr, sr); 
 	        } 
 	        catch (Exception e) {} 
@@ -137,7 +174,7 @@ public class YuvImage {
 		File f = null;
 	    //read image
 	    try{
-	      f = new File("/Users/apple/Desktop/hihi.png"); //image file path
+	      f = new File("input/test0010.JPG"); //image file path
 	      Image image = ImageIO.read(f);
 	      BufferedImage buffered = (BufferedImage) image;
 	      System.out.println("Reading complete.");

@@ -310,10 +310,10 @@ public class HuffmanEncoder {
 			      System.out.println("new IMAGE H" + image.getHeight(null));
 			      System.out.println("new IMAGE W" + image.getWidth(null));
 			      
-			      YuvImage yuv = YuvImage.rgbToYuv(image);
+			      YuvImage yuv = YuvImage.rgbToYuv(image,1);
 			      Sampler sp = new Sampler();
 			      yuv = sp.sampling(yuv, SamplingRatio);	
-			      ImageGrid imageGrid = new ImageGrid();
+			      ImageGrid imageGrid = new ImageGrid(image.getHeight(null),image.getHeight(null));
 			      MCU [] mcu =  imageGrid.imageGridder(yuv);  
 			      System.out.println(" ----------------------    check MCU ARRAY - --------------------------");
 			  //    checkMcu(mcu);	
