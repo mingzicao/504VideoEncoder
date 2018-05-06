@@ -7,7 +7,8 @@ First of all ,you can go to src/GUI to open GUI3.java to run our GUI. The detail
 ## Insturction
 All the guide have been write into the "Instrcution on Veido Encoder", please follow this document to run our project. Also we have provide the guide vedio so that you can take a look:
 * guide vedio for commandline : cmldemo
-* guide vedio for GUI: GUIdemo
+* guide vedio for GUI: GUIdemo.
+
 What I need to mention is that the GUI3 is under src/GUI, not the root path's GUI folder.
 
 ## Group Member
