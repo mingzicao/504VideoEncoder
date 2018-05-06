@@ -5,7 +5,10 @@ In this project, we encoding upto 100 images into a econding file which sized ha
 First of all ,you can go to src/GUI to open GUI3.java to run our GUI. The detail insturction please follow our GUIDE:"Instruction one Vedio Encoder".
 
 ## Insturction
-All the guide have been write into the "Instrcution on Veido Encoder", please follow this document to run our project. What I need to mention is that the GUI3 is under src/GUI, not the root path's GUI folder.
+All the guide have been write into the "Instrcution on Veido Encoder", please follow this document to run our project. Also we have provide the guide vedio so that you can take a look:
+* guide vedio for commandline : cmldemo
+* guide vedio for GUI: GUIdemo
+What I need to mention is that the GUI3 is under src/GUI, not the root path's GUI folder.
 
 ## Group Member
 * mingzi cao
